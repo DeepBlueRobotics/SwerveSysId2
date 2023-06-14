@@ -15,29 +15,29 @@ public interface Ports {
 
     public interface Swerve {
         public interface FrontRight {
-            int DRIVE = 10;
-            int TURN = 11;
+            int DRIVE = 13;
+            int TURN = 14;
         }
 
         public interface FrontLeft {
-            int DRIVE = 12;
-            int TURN = 13;
+            int DRIVE = 8;
+            int TURN = 7;
         }
 
         public interface BackRight{
-            int DRIVE = 14;
-            int TURN = 15;
+            int DRIVE = 11;
+            int TURN = 12;
         }
 
         public interface BackLeft{
-            int DRIVE = 16;
-            int TURN = 17; 
+            int DRIVE = 5;
+            int TURN = 6; 
         }
     }
 
     public interface Arm {
-        int SHOULDER_LEFT = 20;
-        int SHOULDER_RIGHT =  21;
-        int WRIST = 22;
+        int SHOULDER_LEFT = -1;
+        int SHOULDER_RIGHT =  -1;
+        int WRIST = -1;
     }
 }
