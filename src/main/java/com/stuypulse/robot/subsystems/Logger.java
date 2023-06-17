@@ -1,7 +1,16 @@
 package com.stuypulse.robot.subsystems;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -12,7 +21,7 @@ public class Logger extends SubsystemBase {
 	// 200 samples/s * 20 seconds * 9 doubles per sample
 	private static final int LEN_VALUES = 36000;
 
-	private final List<Double> values;
+	private final List<Double[]> values;
 	private final VoltageSwerve swerve;
 
 	public Logger(VoltageSwerve swerve) {
@@ -26,37 +35,36 @@ public class Logger extends SubsystemBase {
 
 	public void publish(String test, boolean forwards) {
 		String path = test + (forwards ? "-forward" : "-backward");
-		String data = "";
-
-		for (int i = 0; i < values.size(); i += 9) {
-			if (i != 0)
-				data += ",";
-
-			data += "[";
-
-			for (int j = 0; j < 9; j++) {
-				if (j != 0)
-					data += ",";
-
-				data += values.get(i + j).toString();
+		String data = values.stream().map(datapoint -> "[" + Arrays.stream(datapoint).map(Object::toString).collect(Collectors.joining(",")) + "]").collect(Collectors.joining(","));
+		values.clear();
+		Path outFile = Path.of(System.getProperty("user.home"), "sysid-tests", path + ".json");
+		try {
+			Files.createDirectories(outFile.getParent());
+			Files.deleteIfExists(outFile);
+			Files.createFile(outFile);
+			try(FileWriter writer = new FileWriter(outFile.toFile())) {
+				writer.write(data);
+				writer.flush();
 			}
-
-			data += "]";
+		} catch(IOException e) {
+			StringWriter writer = new StringWriter();
+			e.printStackTrace(new PrintWriter(writer));
+			String str = writer.toString();
+			System.err.println(str);
 		}
-
-		SmartDashboard.putString(path, data);
+		// SmartDashboard.putString(path, data);
 	}
 
 	@Override
 	public void periodic() {
-		values.add(Timer.getFPGATimestamp());
-		values.add(swerve.getLeftVoltage());
-		values.add(swerve.getRightVoltage());
-		values.add(swerve.getLeftPosition());
-		values.add(swerve.getRightPosition());
-		values.add(swerve.getLeftVelocity());
-		values.add(swerve.getRightVelocity());
-		values.add(swerve.getRotation2d().getDegrees() / 360.0);
-		values.add(swerve.getAngularVelocity() / Math.PI / 2.0);
+		values.add(new Double[] {Timer.getFPGATimestamp(),
+		swerve.getLeftVoltage(),
+		swerve.getRightVoltage(),
+		swerve.getLeftPosition(),
+		swerve.getRightPosition(),
+		swerve.getLeftVelocity(),
+		swerve.getRightVelocity(),
+		swerve.getRotation2d().getDegrees() / 360.0,
+		swerve.getAngularVelocity() / Math.PI / 2.0});
 	}
 }
