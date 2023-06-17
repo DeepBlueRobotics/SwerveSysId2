@@ -27,7 +27,7 @@ if __name__ == '__main__':
         
     ### FTP ###
     ip = "10.1.99.2"
-    customcwd = "/"
+    customcwd = "/home/lvuser/sysid-tests"
     print(f"FTP:\n Ip: {ip}\n Login: anon/anon\n cwd: {customcwd}\nConnecting...")
     
     ftp = FTP(ip)  # connect to host, default port
