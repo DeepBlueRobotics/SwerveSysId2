@@ -1,4 +1,7 @@
-from networktables import NetworkTables
+#from networktables import NetworkTables
+from ftplib import FTP
+import os
+
 from math import pi
 import json
 import sys
@@ -15,28 +18,74 @@ if __name__ == '__main__':
 
     ### Networktables ###
 
-    NetworkTables.initialize(server=data['ip'])
-
-    sd = NetworkTables.getTable('SmartDashboard')
-
-    while not NetworkTables.isConnected():
-        ...
-
-    json_str = '{'
-
-    for test in tests:
-        s = sd.getString(test, None)
-        if s is None:
-            continue
-
-        s = s.replace('E', 'e')
-
-        if len(json_str) > 1:
-            json_str += ','
+#    NetworkTables.initialize(server=data['ip'])
+#
+#    sd = NetworkTables.getTable('SmartDashboard')
+#
+#    while not NetworkTables.isConnected():
+#        ...
         
-        json_str += f'"{test}": [{s}]'
+    ### FTP ###
+    ip = "10.1.99.2"
+    customcwd = "/"
+    print(f"FTP:\n Ip: {ip}\n Login: anon/anon\n cwd: {customcwd}\nConnecting...")
     
-    json_str += f',"sysid":true,"test":"Drivetrain","units":"Meters","unitsPerRotation":{data["wheelDiameter"] * pi}}}'
+    ftp = FTP(ip)  # connect to host, default port
+    ftp.login()                   # user anonymous, passwd anonymous@    
+    ftp.cwd(customcwd)             # change into "debian" directory
+
+    print("Connected, listing files:")
+    ftp.dir()
+    
+#    ### User Input Just In Case###
+#    print("Which file to read?")
+#    choices = [(i,f) for i,f in enumerate(ftp.nlst())]#assigns an index to every findable file in the ftp cwd
+#    for i in choices:
+#      print(f"[{i[0]}]: {i[1]}")# [index]: name
+#    
+#    n = -1
+#    while not -1<n<len(choices):#force user to actually choose an index
+#      try:
+#        n=int(input("Index: "))
+#      except:
+#        pass
+#    
+#    filename=choices[n][1]
+    
+    ### Reading Files ###
+    fileJson = json.loads(text)
+    json_data = {}
+    tests = [
+      "Quasistatic-forward",
+      "Quasistatic-backward",
+      "Dynamic-forward",
+      "Dynamic-backward",
+    ]
+    
+    for test in tests:
+        filename=test+".json"
+        ### Grab file now ###
+        print(f"Downloading file: {filename}")
+        cwd = os.getcwd()
+        with open(filename, 'wb') as fp:
+          ftp.retrbinary('RETR '+filename, fp.write)
+
+        #check file was downloaded!
+        try:
+          with open(os.path.join(cwd, filename), 'r') as f:
+            text = f.read()
+        except FileNotFoundError:
+          print("[{filename}] not found\n Skipping.")
+          continue
+        
+        json_data[test]=json.loads(text)
+    
+    ftp.quit()#close ftp after files downloaded
+    
+    json["sysid"]="true"
+    json["test"]="Drivetrain"
+    json["units"]="Meters"
+    json["unitsPerRotation"]=str(data["wheelDiameter"]*pi)
     
     with open(data['outputFile'], 'w') as f:
-        json.dump(json.loads(json_str), f, indent=4)
+        json.dump(json_data, f, indent=4)
