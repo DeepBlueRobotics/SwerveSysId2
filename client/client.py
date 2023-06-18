@@ -6,33 +6,19 @@ from math import pi
 import json
 import sys
 
-tests = ['fast-backward', 'fast-forward', 'slow-backward', 'slow-forward']
+import constants as c
 
 if __name__ == '__main__':
-    data = {}
-    try:
-        with open('client.json') as f:
-            data = json.load(f)
-    except:
-        exit('Error: must create "client.json" file in same directory, see README.md for content specifications')
-
-    ### Networktables ###
-
-#    NetworkTables.initialize(server=data['ip'])
-#
-#    sd = NetworkTables.getTable('SmartDashboard')
-#
-#    while not NetworkTables.isConnected():
-#        ...
+    data = c.data
         
     ### FTP ###
-    ip = "10.1.99.2"
+    ip = data["ip"]
     customcwd = "/home/lvuser/sysid-tests"
     print(f"FTP:\n Ip: {ip}\n Login: anon/anon\n cwd: {customcwd}\nConnecting...")
     
     ftp = FTP(ip)  # connect to host, default port
     ftp.login()                   # user anonymous, passwd anonymous@    
-    ftp.cwd(customcwd)             # change into "debian" directory
+    ftp.cwd(data["cwd"])             # change into "debian" directory
 
     print("Connected, listing files:")
     ftp.dir()
@@ -53,14 +39,8 @@ if __name__ == '__main__':
 #    filename=choices[n][1]
     
     ### Reading Files ###
-    fileJson = json.loads(text)
     json_data = {}
-    tests = [
-      "Quasistatic-forward",
-      "Quasistatic-backward",
-      "Dynamic-forward",
-      "Dynamic-backward",
-    ]
+    tests = data["tests"]
     
     for test in tests:
         filename=test+".json"
@@ -82,10 +62,10 @@ if __name__ == '__main__':
     
     ftp.quit()#close ftp after files downloaded
     
-    json["sysid"]="true"
-    json["test"]="Drivetrain"
-    json["units"]="Meters"
-    json["unitsPerRotation"]=str(data["wheelDiameter"]*pi)
+    json_data["sysid"]="true"
+    json_data["test"]="Drivetrain"
+    json_data["units"]="Meters"
+    json_data["unitsPerRotation"]=str(data["wheelDiameter"]*pi)
     
     with open(data['outputFile'], 'w') as f:
         json.dump(json_data, f, indent=4)
