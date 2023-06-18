@@ -9,11 +9,11 @@ import sys
 import constants as c
 
 if __name__ == '__main__':
-    data = c.data
+    data = c.data#constants dictionary
         
     ### FTP ###
     ip = data["ip"]
-    customcwd = "/home/lvuser/sysid-tests"
+    customcwd = "/home/lvuser/sysid-tests"#folder of the files
     print(f"FTP:\n Ip: {ip}\n Login: anon/anon\n cwd: {customcwd}\nConnecting...")
     
     ftp = FTP(ip)  # connect to host, default port
@@ -44,11 +44,11 @@ if __name__ == '__main__':
     
     for test in tests:
         filename=test+".json"
-        ### Grab file now ###
+        ### Grab file ###
         print(f"Downloading file: {filename}")
-        cwd = os.getcwd()
+        cwd = os.getcwd()#where this script runs from
         with open(filename, 'wb') as fp:
-          ftp.retrbinary('RETR '+filename, fp.write)
+          ftp.retrbinary('RETR '+filename, fp.write)#fancy download function
 
         #check file was downloaded!
         try:
@@ -58,10 +58,11 @@ if __name__ == '__main__':
           print("[{filename}] not found\n Skipping.")
           continue
         
-        json_data[test]=json.loads(text)
+        json_data[test]=json.loads(text)#put it in the output json
     
     ftp.quit()#close ftp after files downloaded
     
+    #end settings
     json_data["sysid"]="true"
     json_data["test"]="Drivetrain"
     json_data["units"]="Meters"
