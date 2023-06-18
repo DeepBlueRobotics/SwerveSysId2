@@ -1,5 +1,6 @@
 package com.stuypulse.robot.subsystems.module;
 
+import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
@@ -24,9 +25,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
 
     private interface Turn {
-        double kP = 3.5;
+        double kP = .00374;
         double kI = 0.0;
-        double kD = 0.0;
+        double kD = 0.2;
     }
 
     // module data
@@ -36,7 +37,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
 
     // turn
     private CANSparkMax turnMotor;
-    private SparkMaxAbsoluteEncoder absoluteEncoder;
+    private RelativeEncoder turnEncoder;
 
     // drive
     private CANSparkMax driveMotor;
@@ -58,22 +59,22 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         // turn 
         turnMotor = new CANSparkMax(turnCANId, MotorType.kBrushless);
         turnPID = new AnglePIDController(Turn.kP, Turn.kI, Turn.kD);
-        absoluteEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);
-        configureTurnMotor(angleOffset);
+        turnEncoder = turnMotor.getEncoder();//relative!
+        //configureTurnMotor(angleOffset); none since relative
         
         // drive
         driveMotor = new CANSparkMax(driveCANId, MotorType.kBrushless);
         configureDriveMotor();
-    }   
+    }
 
     private void configureTurnMotor(Rotation2d angleOffset) {
         turnMotor.restoreFactoryDefaults();
         
-        absoluteEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);
-        absoluteEncoder.setPositionConversionFactor(Encoder.Turn.POSITION_CONVERSION);
-        absoluteEncoder.setVelocityConversionFactor(Encoder.Turn.VELOCITY_CONVERSION);
-        absoluteEncoder.setZeroOffset(angleOffset.getRotations());
-        absoluteEncoder.setInverted(true);
+        turnEncoder = turnMotor.getEncoder();
+        turnEncoder.setPositionConversionFactor(Encoder.Turn.POSITION_CONVERSION);
+        turnEncoder.setVelocityConversionFactor(Encoder.Turn.VELOCITY_CONVERSION);
+        //turnEncoder.setZeroOffset(angleOffset.getRotations());
+        turnEncoder.setInverted(true);
 
         turnMotor.enableVoltageCompensation(12.0);
 
@@ -118,7 +119,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
     }
 
     private Rotation2d getAbsolutePosition() {
-        return Rotation2d.fromRotations(absoluteEncoder.getPosition());
+        return Rotation2d.fromRotations(turnEncoder.getPosition());
     }
 
     private Rotation2d getRotation2d() {
@@ -136,7 +137,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
     }
 
     public void periodic() {
-        turnMotor.set(turnPID.update(Angle.kZero, Angle.fromRotation2d(getRotation2d())));
+        turnMotor.set(turnPID.update(Angle.fromDegrees(0), Angle.fromRotation2d(getRotation2d())));
         driveMotor.setVoltage(voltage);
 
         SmartDashboard.putNumber(id + "/Angle", getRotation2d().getDegrees());
