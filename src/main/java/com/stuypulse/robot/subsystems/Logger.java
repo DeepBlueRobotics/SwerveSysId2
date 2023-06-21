@@ -35,7 +35,7 @@ public class Logger extends SubsystemBase {
 
 	public void publish(String test, boolean forwards) {
 		String path = test + (forwards ? "-forward" : "-backward");
-		String data = values.stream().map(datapoint -> "[" + Arrays.stream(datapoint).map(Object::toString).collect(Collectors.joining(",")) + "]").collect(Collectors.joining(","));
+		String data = values.stream().map(datapoint -> "[" + Arrays.stream(datapoint).map(Object::toString).collect(Collectors.joining(",")) + "]").collect(Collectors.joining(",\n"));
 		values.clear();
 		Path outFile = Path.of(System.getProperty("user.home"), "sysid-tests", path + ".json");
 		try {

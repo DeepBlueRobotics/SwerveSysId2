@@ -160,3 +160,7 @@ bin/
 
 # Simulation GUI and other tools window save file
 *-window.json
+
+#   temp files when running client
+client/*.json
+client/data.json

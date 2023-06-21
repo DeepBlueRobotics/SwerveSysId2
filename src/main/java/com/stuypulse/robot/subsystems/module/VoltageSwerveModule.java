@@ -60,7 +60,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         turnMotor = new CANSparkMax(turnCANId, MotorType.kBrushless);
         turnPID = new AnglePIDController(Turn.kP, Turn.kI, Turn.kD);
         turnEncoder = turnMotor.getEncoder();//relative!
-        //configureTurnMotor(angleOffset); none since relative
+        configureTurnMotor(angleOffset);
         
         // drive
         driveMotor = new CANSparkMax(driveCANId, MotorType.kBrushless);
@@ -74,7 +74,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         turnEncoder.setPositionConversionFactor(Encoder.Turn.POSITION_CONVERSION);
         turnEncoder.setVelocityConversionFactor(Encoder.Turn.VELOCITY_CONVERSION);
         //turnEncoder.setZeroOffset(angleOffset.getRotations());
-        turnEncoder.setInverted(true);
+        //turnEncoder.setInverted(true);
 
         turnMotor.enableVoltageCompensation(12.0);
 

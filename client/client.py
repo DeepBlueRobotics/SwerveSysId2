@@ -9,19 +9,29 @@ import sys
 import constants as c
 
 if __name__ == '__main__':
-    data = c.data#constants dictionary
-        
-    ### FTP ###
-    ip = data["ip"]
-    customcwd = "/home/lvuser/sysid-tests"#folder of the files
-    print(f"FTP:\n Ip: {ip}\n Login: anon/anon\n cwd: {customcwd}\nConnecting...")
-    
-    ftp = FTP(ip)  # connect to host, default port
-    ftp.login()                   # user anonymous, passwd anonymous@    
-    ftp.cwd(data["cwd"])             # change into "debian" directory
+    ### command line arguments ###
+    # -d : do not download data but instead look for already-downloaded files
+    # -x : delete downloaded files after they have been read
+    args = sys.argv[1:]
+    args = {
+      "-d": ("-d" in args),
+      "-x": ("-x" in args),
+    }
 
-    print("Connected, listing files:")
-    ftp.dir()
+    data = c.data#constants dictionary
+    
+    if not args["-d"]:
+      ### FTP ###
+      ip = data["ip"]
+      customcwd = "/home/lvuser/sysid-tests"#folder of the files
+      print(f"FTP:\n Ip: {ip}\n Login: anon/anon\n cwd: {customcwd}\nConnecting...")
+      
+      ftp = FTP(ip)  # connect to host, default port
+      ftp.login()                   # user anonymous, passwd anonymous@    
+      ftp.cwd(data["cwd"])             # change into "debian" directory
+
+      print("Connected, listing files:")
+      ftp.dir()
     
 #    ### User Input Just In Case###
 #    print("Which file to read?")
@@ -44,23 +54,34 @@ if __name__ == '__main__':
     
     for test in tests:
         filename=test+".json"
-        ### Grab file ###
-        print(f"Downloading file: {filename}")
         cwd = os.getcwd()#where this script runs from
-        with open(filename, 'wb') as fp:
-          ftp.retrbinary('RETR '+filename, fp.write)#fancy download function
+        if not args["-d"]:
+        ### Grab file ###
+          print(f"Downloading file: {filename}")
+          with open(filename, 'wb') as fp:
+            ftp.retrbinary('RETR '+filename, fp.write)#fancy download function
+        else:
+          print(f"[-d]: Reading expected file: {filename}")
 
-        #check file was downloaded!
+        #check file exists!
         try:
           with open(os.path.join(cwd, filename), 'r') as f:
             text = f.read()
         except FileNotFoundError:
           print("[{filename}] not found\n Skipping.")
           continue
-        
-        json_data[test]=json.loads(text)#put it in the output json
+
+        #put it in the output json file
+        formatted = "{ \"numbers\": ["+text+"]}"
+        print(formatted[:500])
+        json_data[test]=json.loads(formatted)["numbers"]
+
+        if args["-x"]:
+          os.remove(os.path.join(cwd, filename))
+          print(f"Removed {filename}!")
     
-    ftp.quit()#close ftp after files downloaded
+    if not args["-d"]:
+      ftp.quit()#close ftp after files downloaded
     
     #end settings
     json_data["sysid"]="true"
