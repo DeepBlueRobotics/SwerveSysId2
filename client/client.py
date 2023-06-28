@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
         #put it in the output json file
         formatted = "{ \"numbers\": ["+text+"]}"
-        print(formatted[:500])
+        #print(formatted[:500])
         json_data[test]=json.loads(formatted)["numbers"]
 
         if args["-x"]:
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     json_data["sysid"]="true"
     json_data["test"]="Drivetrain"
     json_data["units"]="Meters"
-    json_data["unitsPerRotation"]=str(data["wheelDiameter"]*pi)
+    json_data["unitsPerRotation"]=data["wheelDiameter"]*pi
     
     with open(data['outputFile'], 'w') as f:
         json.dump(json_data, f, indent=4)

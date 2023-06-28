@@ -56,12 +56,12 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         this.location = location;
         this.angleOffset = angleOffset;
 
-        // turn 
+        // turn
         turnMotor = new CANSparkMax(turnCANId, MotorType.kBrushless);
         turnPID = new AnglePIDController(Turn.kP, Turn.kI, Turn.kD);
         turnEncoder = turnMotor.getEncoder();//relative!
         configureTurnMotor(angleOffset);
-        
+
         // drive
         driveMotor = new CANSparkMax(driveCANId, MotorType.kBrushless);
         configureDriveMotor();
@@ -76,7 +76,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         //turnEncoder.setZeroOffset(angleOffset.getRotations());
         //turnEncoder.setInverted(true);
 
-        turnMotor.enableVoltageCompensation(12.0);
+        turnMotor.enableVoltageCompensation(12);
 
         Motors.TURN.config(turnMotor);
     }
@@ -137,7 +137,8 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
     }
 
     public void periodic() {
-        turnMotor.set(turnPID.update(Angle.fromDegrees(0), Angle.fromRotation2d(getRotation2d())));
+        double turnVoltage = turnPID.update(Angle.fromDegrees(0), Angle.fromRotation2d(getRotation2d()));
+        turnMotor.set(turnVoltage);
         driveMotor.setVoltage(voltage);
 
         SmartDashboard.putNumber(id + "/Angle", getRotation2d().getDegrees());
@@ -146,6 +147,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         SmartDashboard.putNumber(id + "/Velocity", getVelocity());
 
         SmartDashboard.putNumber(id + "/Drive Voltage", voltage);
+        SmartDashboard.putNumber(id + "/Turn Voltage", turnVoltage);
     }
 
 }
