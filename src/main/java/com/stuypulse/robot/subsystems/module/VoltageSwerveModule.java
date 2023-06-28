@@ -38,7 +38,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
 
     // turn
     private CANSparkMax turnMotor;
-    private AbsoluteEncoder turnEncoder;
+    private SparkMaxAbsoluteEncoder turnEncoder;
 
     // drive
     private CANSparkMax driveMotor;
@@ -74,7 +74,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         turnEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);
         turnEncoder.setPositionConversionFactor(Encoder.Turn.POSITION_CONVERSION);
         turnEncoder.setVelocityConversionFactor(Encoder.Turn.VELOCITY_CONVERSION);
-        //turnEncoder.setZeroOffset(angleOffset.getRotations());
+        turnEncoder.setZeroOffset(angleOffset.getRotations());
         //turnEncoder.setInverted(true);
 
         turnMotor.enableVoltageCompensation(12);
