@@ -1,6 +1,7 @@
 package com.stuypulse.robot.subsystems.module;
 
 import com.ctre.phoenix.sensors.CANCoder;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
@@ -37,7 +38,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
 
     // turn
     private CANSparkMax turnMotor;
-    private RelativeEncoder turnEncoder;
+    private AbsoluteEncoder turnEncoder;
 
     // drive
     private CANSparkMax driveMotor;
@@ -59,7 +60,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         // turn
         turnMotor = new CANSparkMax(turnCANId, MotorType.kBrushless);
         turnPID = new AnglePIDController(Turn.kP, Turn.kI, Turn.kD);
-        turnEncoder = turnMotor.getEncoder();//relative!
+        turnEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);//relative!
         configureTurnMotor(angleOffset);
 
         // drive
@@ -70,7 +71,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
     private void configureTurnMotor(Rotation2d angleOffset) {
         turnMotor.restoreFactoryDefaults();
         
-        turnEncoder = turnMotor.getEncoder();
+        turnEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);
         turnEncoder.setPositionConversionFactor(Encoder.Turn.POSITION_CONVERSION);
         turnEncoder.setVelocityConversionFactor(Encoder.Turn.VELOCITY_CONVERSION);
         //turnEncoder.setZeroOffset(angleOffset.getRotations());
