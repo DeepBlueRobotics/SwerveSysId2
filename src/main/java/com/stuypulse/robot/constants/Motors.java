@@ -19,5 +19,5 @@ import com.stuypulse.robot.util.SparkMaxConfig;
  */
 public interface Motors {
 	SparkMaxConfig DRIVE = new SparkMaxConfig(false, IdleMode.kBrake, 40, 0);
-	SparkMaxConfig TURN  = new SparkMaxConfig(false, IdleMode.kBrake, 20, 0);
+	SparkMaxConfig TURN  = new SparkMaxConfig(true, IdleMode.kBrake, 20, 0);
 }
