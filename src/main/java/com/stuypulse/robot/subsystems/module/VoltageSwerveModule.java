@@ -32,6 +32,8 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
     SmartNumber turnI = new SmartNumber("turnI", Turn.kI);
     SmartNumber turnD = new SmartNumber("turnD", Turn.kD);
 
+    SmartNumber target = new SmartNumber("Target Deg", 0);
+
     // module data
     private String id;
     private Translation2d location;
@@ -145,7 +147,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         turnPID.setI(turnI.get());
         turnPID.setD(turnD.get());
 
-        double turnVoltage = turnPID.update(Angle.fromDegrees(0), Angle.fromRotation2d(getRotation2d()));
+        double turnVoltage = turnPID.update(Angle.fromDegrees(target.get()), Angle.fromRotation2d(getRotation2d()));
         turnMotor.set(turnVoltage);
         driveMotor.setVoltage(voltage);
 
