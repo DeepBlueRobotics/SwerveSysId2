@@ -5,6 +5,8 @@
 
 package com.stuypulse.robot.constants;
 
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix.sensors.SensorTimeBase;
 import com.stuypulse.stuylib.network.SmartBoolean;
 import com.stuypulse.stuylib.network.SmartNumber;
 
@@ -37,8 +39,13 @@ public interface Settings {
 			}
 	
 			public interface Turn {
-				double POSITION_CONVERSION = 1;
-				double VELOCITY_CONVERSION = POSITION_CONVERSION / 60.0;
+                // if changing units please double check the getAbsolutePosition() method to make sure unit conversions are correct
+                // TODO: make it so that you don't have to check there
+				double POSITION_CONVERSION = 0.087890625; // exact default value from api, converts to degrees
+                String UNIT_STRING = "deg";
+                SensorTimeBase SENSOR_TIME_BASE = SensorTimeBase.PerSecond;
+                boolean SENSOR_DIRECTION = false; // default, positive rotation counter-clockwise when observer is facing the LED side
+                AbsoluteSensorRange ABSOLUTE_SENSOR_RANGE = AbsoluteSensorRange.Signed_PlusMinus180;
 	
 				double MIN_PID_INPUT = 0;
 				double MAX_PID_INPUT = POSITION_CONVERSION;

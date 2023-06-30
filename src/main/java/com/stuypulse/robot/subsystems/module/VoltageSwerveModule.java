@@ -1,12 +1,10 @@
 package com.stuypulse.robot.subsystems.module;
 
 import com.ctre.phoenix.sensors.CANCoder;
-import com.revrobotics.AbsoluteEncoder;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import com.stuypulse.robot.constants.Motors;
 import com.stuypulse.robot.constants.Settings;
 import com.stuypulse.robot.constants.Settings.Swerve.Encoder;
@@ -15,7 +13,6 @@ import com.stuypulse.stuylib.control.angle.AngleController;
 import com.stuypulse.stuylib.control.angle.feedback.AnglePIDController;
 import com.stuypulse.stuylib.math.Angle;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -38,7 +35,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
 
     // turn
     private CANSparkMax turnMotor;
-    private SparkMaxAbsoluteEncoder turnEncoder;
+    private CANCoder absoluteEncoder;
 
     // drive
     private CANSparkMax driveMotor;
@@ -49,7 +46,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
 
     private double voltage;
 
-    public VoltageSwerveModule(String id, Translation2d location, int turnCANId,
+    public VoltageSwerveModule(String id, Translation2d location, int turnCANId, int turnEncoderId,
             Rotation2d angleOffset, int driveCANId) {
 
         // module data
@@ -60,7 +57,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         // turn
         turnMotor = new CANSparkMax(turnCANId, MotorType.kBrushless);
         turnPID = new AnglePIDController(Turn.kP, Turn.kI, Turn.kD);
-        turnEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);//relative!
+        absoluteEncoder = new CANCoder(turnEncoderId);
         configureTurnMotor(angleOffset);
 
         // drive
@@ -71,11 +68,13 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
     private void configureTurnMotor(Rotation2d angleOffset) {
         turnMotor.restoreFactoryDefaults();
         
-        turnEncoder = turnMotor.getAbsoluteEncoder(Type.kDutyCycle);
-        turnEncoder.setPositionConversionFactor(Encoder.Turn.POSITION_CONVERSION);
-        turnEncoder.setVelocityConversionFactor(Encoder.Turn.VELOCITY_CONVERSION);
-        turnEncoder.setZeroOffset(angleOffset.getRotations());
-        //turnEncoder.setInverted(true);
+        CANCoderConfiguration config = new CANCoderConfiguration();
+        config.sensorCoefficient = Encoder.Turn.POSITION_CONVERSION;
+        config.unitString = Encoder.Turn.UNIT_STRING;
+        config.sensorTimeBase = Encoder.Turn.SENSOR_TIME_BASE;
+        config.absoluteSensorRange = Encoder.Turn.ABSOLUTE_SENSOR_RANGE;
+        config.sensorDirection = Encoder.Turn.SENSOR_DIRECTION;
+        absoluteEncoder.configAllSettings(config);
 
         turnMotor.enableVoltageCompensation(12);
 
@@ -86,8 +85,8 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         driveMotor.restoreFactoryDefaults();
         
         driveEncoder = driveMotor.getEncoder();
-        // driveEncoder.setPositionConversionFactor(Encoder.Drive.POSITION_CONVERSION);
-        // driveEncoder.setVelocityConversionFactor(Encoder.Drive.VELOCITY_CONVERSION);
+        driveEncoder.setPositionConversionFactor(Encoder.Drive.POSITION_CONVERSION);
+        driveEncoder.setVelocityConversionFactor(Encoder.Drive.VELOCITY_CONVERSION);
         
         driveMotor.enableVoltageCompensation(12.0);
         Motors.DRIVE.config(driveMotor);
@@ -120,7 +119,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
     }
 
     private Rotation2d getAbsolutePosition() {
-        return Rotation2d.fromRotations(turnEncoder.getPosition());
+        return Rotation2d.fromDegrees(absoluteEncoder.getPosition());
     }
 
     private Rotation2d getRotation2d() {
