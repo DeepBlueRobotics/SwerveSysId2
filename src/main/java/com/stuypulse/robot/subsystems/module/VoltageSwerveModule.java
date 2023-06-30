@@ -110,7 +110,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
 
     @Override
     public SwerveModuleState getState() {
-        return new SwerveModuleState(getVelocity() * Settings.Swerve.Encoder.Drive.WHEEL_CIRCUMFERENCE, getRotation2d());
+        return new SwerveModuleState(getVelocity(), getRotation2d());
     }
 
     @Override
