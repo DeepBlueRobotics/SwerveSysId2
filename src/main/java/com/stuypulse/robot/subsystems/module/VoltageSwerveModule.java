@@ -12,6 +12,7 @@ import com.stuypulse.robot.subsystems.SwerveModule;
 import com.stuypulse.stuylib.control.angle.AngleController;
 import com.stuypulse.stuylib.control.angle.feedback.AnglePIDController;
 import com.stuypulse.stuylib.math.Angle;
+import com.stuypulse.stuylib.network.SmartNumber;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -27,6 +28,9 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         double kI = 0.0;
         double kD = 0.2;
     }
+    SmartNumber turnP = new SmartNumber("turnP", Turn.kP);
+    SmartNumber turnI = new SmartNumber("turnI", Turn.kI);
+    SmartNumber turnD = new SmartNumber("turnD", Turn.kD);
 
     // module data
     private String id;
@@ -42,7 +46,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
     private RelativeEncoder driveEncoder;
 
     // controller
-    private AngleController turnPID;
+    private AnglePIDController turnPID;
 
     private double voltage;
 
@@ -137,12 +141,16 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
     }
 
     public void periodic() {
+        turnPID.setP(turnP.get());
+        turnPID.setI(turnI.get());
+        turnPID.setD(turnD.get());
+
         double turnVoltage = turnPID.update(Angle.fromDegrees(0), Angle.fromRotation2d(getRotation2d()));
         turnMotor.set(turnVoltage);
         driveMotor.setVoltage(voltage);
 
-        SmartDashboard.putNumber(id + "/Angle", getRotation2d().getDegrees());
-        SmartDashboard.putNumber(id + "/Absolute Angle", getAbsolutePosition().getDegrees());
+        SmartDashboard.putNumber(id + "/Angle Deg", getRotation2d().getDegrees());
+        //SmartDashboard.putNumber(id + "/Absolute Angle Deg", getAbsolutePosition().getDegrees());
 
         SmartDashboard.putNumber(id + "/Velocity", getVelocity());
 

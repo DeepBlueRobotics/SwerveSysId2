@@ -47,6 +47,7 @@ public interface Settings {
                 boolean SENSOR_DIRECTION = false; // default, positive rotation counter-clockwise when observer is facing the LED side
                 AbsoluteSensorRange ABSOLUTE_SENSOR_RANGE = AbsoluteSensorRange.Signed_PlusMinus180;
 	
+                // I have no idea where this is used?
 				double MIN_PID_INPUT = 0;
 				double MAX_PID_INPUT = POSITION_CONVERSION;
 			}
