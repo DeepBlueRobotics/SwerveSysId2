@@ -119,7 +119,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
     }
 
     private Rotation2d getAbsolutePosition() {
-        return Rotation2d.fromDegrees(absoluteEncoder.getPosition());
+        return Rotation2d.fromDegrees(absoluteEncoder.getAbsolutePosition());
     }
 
     private Rotation2d getRotation2d() {
