@@ -138,7 +138,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
 
     public void periodic() {
         double turnVoltage = turnPID.update(Angle.fromDegrees(0), Angle.fromRotation2d(getRotation2d()));
-        turnMotor.set(turnVoltage);
+        turnMotor.setVoltage(turnVoltage);
         driveMotor.setVoltage(voltage);
 
         SmartDashboard.putNumber(id + "/Angle", getRotation2d().getDegrees());
