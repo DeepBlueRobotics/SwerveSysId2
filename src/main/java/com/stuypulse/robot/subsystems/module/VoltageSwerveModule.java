@@ -3,13 +3,11 @@ package com.stuypulse.robot.subsystems.module;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.RelativeEncoder;
 import com.stuypulse.robot.constants.Motors;
-import com.stuypulse.robot.constants.Settings;
 import com.stuypulse.robot.constants.Settings.Swerve.Encoder;
 import com.stuypulse.robot.subsystems.SwerveModule;
-import com.stuypulse.stuylib.control.angle.AngleController;
 import com.stuypulse.stuylib.control.angle.feedback.AnglePIDController;
 import com.stuypulse.stuylib.math.Angle;
 import com.stuypulse.stuylib.network.SmartNumber;
@@ -18,19 +16,21 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
 
     private interface Turn {
-        double kP = .00374;
+        double kP = 6.335;
         double kI = 0.0;
-        double kD = 0.2;
+        double kD = 0.05;
     }
     SmartNumber turnP = new SmartNumber("turnP", Turn.kP);
     SmartNumber turnI = new SmartNumber("turnI", Turn.kI);
     SmartNumber turnD = new SmartNumber("turnD", Turn.kD);
+    SmartNumber turnKS = new SmartNumber("turnKS", 0.12);
 
     SmartNumber target = new SmartNumber("Target Deg", 0);
 
@@ -148,18 +148,20 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         turnPID.setP(turnP.get());
         turnPID.setI(turnI.get());
         turnPID.setD(turnD.get());
-
+        kS = turnKS.get();
         double turnVoltage = turnPID.update(Angle.fromDegrees(target.get()), Angle.fromRotation2d(getRotation2d()));
-        turnMotor.setVoltage(kS * Math.signum(turnVoltage) + turnVoltage);
+        turnVoltage += -1 * kS * Math.signum(Angle.fromRotation2d(getRotation2d()).toDegrees() - Angle.fromDegrees(target.get()).toDegrees());
+        turnMotor.setVoltage(turnVoltage);
         driveMotor.setVoltage(voltage);
 
         SmartDashboard.putNumber(id + "/Angle Deg", getRotation2d().getDegrees());
         //SmartDashboard.putNumber(id + "/Absolute Angle Deg", getAbsolutePosition().getDegrees());
-
+        SmartDashboard.putNumber(id + "/Error", Angle.fromRotation2d(getRotation2d()).toDegrees() - Angle.fromDegrees(target.get()).toDegrees());
         SmartDashboard.putNumber(id + "/Velocity", getVelocity());
 
         SmartDashboard.putNumber(id + "/Drive Voltage", voltage);
         SmartDashboard.putNumber(id + "/Turn Voltage", turnVoltage);
+        SmartDashboard.putNumber(id + "/CANCoder Last Frame (ms)", Timer.getFPGATimestamp() - absoluteEncoder.getLastTimestamp());
     }
 
 }

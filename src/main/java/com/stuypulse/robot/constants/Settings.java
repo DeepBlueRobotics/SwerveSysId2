@@ -56,33 +56,33 @@ public interface Settings {
 		public interface FrontRight {
             String ID = "Front Right";
             //Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(174).plus(Rotation2d.fromDegrees(0));
-            Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(85.0782);
+            Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromDegrees(85.0782).plus(Rotation2d.fromDegrees(90));
             Translation2d MODULE_OFFSET = new Translation2d(WIDTH * +0.5, HEIGHT * -0.5);
-            double kS = 0;
+            double kS = 0.125;
         }
 
         public interface FrontLeft {
             String ID = "Front Left";
             //Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(-131).plus(Rotation2d.fromDegrees(270));
-            Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(85.7812);
+            Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromDegrees(85.7812).plus(Rotation2d.fromDegrees(90));
             Translation2d MODULE_OFFSET = new Translation2d(WIDTH * +0.5, HEIGHT * +0.5);
-            double kS = 0;
+            double kS = 0.125;
         }
 
         public interface BackLeft {
             String ID = "Back Left";
             //Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(119).plus(Rotation2d.fromDegrees(180));
-            Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(-96.9433);
+            Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromDegrees(-96.9433).plus(Rotation2d.fromDegrees(90));
             Translation2d MODULE_OFFSET = new Translation2d(WIDTH * -0.5, HEIGHT * +0.5);
-            double kS = 0;
+            double kS = 0.125;
         }
 
         public interface BackRight {
             String ID = "Back Right";
             //Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(-2).plus(Rotation2d.fromDegrees(90));
-            Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(-162.9492);
+            Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromDegrees(-162.9492).plus(Rotation2d.fromDegrees(90));
             Translation2d MODULE_OFFSET = new Translation2d(WIDTH * -0.5, HEIGHT * -0.5);
-            double kS = 0;
+            double kS = 0.125;
         }
 	}
 }
