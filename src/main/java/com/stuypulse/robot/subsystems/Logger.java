@@ -48,9 +48,11 @@ public class Logger extends SubsystemBase {
 			}
 		} catch(IOException e) {
 			StringWriter writer = new StringWriter();
-			e.printStackTrace(new PrintWriter(writer));
+			PrintWriter pw = new PrintWriter(writer);
+			e.printStackTrace(pw);
 			String str = writer.toString();
 			System.err.println(str);
+			pw.close();
 		}
 		// SmartDashboard.putString(path, data);
 	}
