@@ -49,16 +49,18 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
 
     // controller
     private AnglePIDController turnPID;
+    private double kS;
 
     private double voltage;
 
     public VoltageSwerveModule(String id, Translation2d location, int turnCANId, int turnEncoderId,
-            Rotation2d angleOffset, int driveCANId) {
+            Rotation2d angleOffset, int driveCANId, double kS) {
 
         // module data
         this.id = id;
         this.location = location;
         this.angleOffset = angleOffset;
+        this.kS = kS;
 
         // turn
         turnMotor = new CANSparkMax(turnCANId, MotorType.kBrushless);
@@ -148,7 +150,7 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         turnPID.setD(turnD.get());
 
         double turnVoltage = turnPID.update(Angle.fromDegrees(target.get()), Angle.fromRotation2d(getRotation2d()));
-        turnMotor.set(turnVoltage);
+        turnMotor.setVoltage(kS * Math.signum(turnVoltage) + turnVoltage);
         driveMotor.setVoltage(voltage);
 
         SmartDashboard.putNumber(id + "/Angle Deg", getRotation2d().getDegrees());

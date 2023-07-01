@@ -58,6 +58,7 @@ public interface Settings {
             //Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(174).plus(Rotation2d.fromDegrees(0));
             Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(85.0782);
             Translation2d MODULE_OFFSET = new Translation2d(WIDTH * +0.5, HEIGHT * -0.5);
+            double kS = 0;
         }
 
         public interface FrontLeft {
@@ -65,6 +66,7 @@ public interface Settings {
             //Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(-131).plus(Rotation2d.fromDegrees(270));
             Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(85.7812);
             Translation2d MODULE_OFFSET = new Translation2d(WIDTH * +0.5, HEIGHT * +0.5);
+            double kS = 0;
         }
 
         public interface BackLeft {
@@ -72,6 +74,7 @@ public interface Settings {
             //Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(119).plus(Rotation2d.fromDegrees(180));
             Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(-96.9433);
             Translation2d MODULE_OFFSET = new Translation2d(WIDTH * -0.5, HEIGHT * +0.5);
+            double kS = 0;
         }
 
         public interface BackRight {
@@ -79,6 +82,7 @@ public interface Settings {
             //Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(-2).plus(Rotation2d.fromDegrees(90));
             Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(-162.9492);
             Translation2d MODULE_OFFSET = new Translation2d(WIDTH * -0.5, HEIGHT * -0.5);
+            double kS = 0;
         }
 	}
 }
