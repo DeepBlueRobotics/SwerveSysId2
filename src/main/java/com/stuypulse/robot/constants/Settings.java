@@ -30,11 +30,11 @@ public interface Settings {
 		
 		public interface Encoder {
 			public interface Drive {
-				double WHEEL_DIAMETER = Units.inchesToMeters(4)*7.36/7.65;
-				double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
+				//double WHEEL_DIAMETER = Units.inchesToMeters(4)*7.36/7.65;
+				//double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
 				double GEAR_RATIO = 6.75;
 				
-				double POSITION_CONVERSION = WHEEL_CIRCUMFERENCE / GEAR_RATIO;
+				double POSITION_CONVERSION = 1 / GEAR_RATIO;
 				double VELOCITY_CONVERSION = POSITION_CONVERSION / 60.0;
 			}
 	
