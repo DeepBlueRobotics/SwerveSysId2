@@ -53,12 +53,19 @@ public interface Settings {
 			}
 		}
 
-		public interface FrontRight {
+        // TODO: I would advocate for making this an entire class so that we don't have to worry about passing so many random variables
+        // rn if we make a change to these interfaces, we would have to go into 2 other classes to use those changes which is annoying
+        int kS = 0, kP = 1, kI = 2, kD = 3; // array indexes for pidConsts array
+        public interface FrontRight {
             String ID = "Front Right";
             //Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromRotations(174).plus(Rotation2d.fromDegrees(0));
             Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromDegrees(85.0782).plus(Rotation2d.fromDegrees(90));
             Translation2d MODULE_OFFSET = new Translation2d(WIDTH * +0.5, HEIGHT * -0.5);
             double kS = 0.125;
+            double kP = 6.335;
+            double kI = 0.0;
+            double kD = 0.05;
+            double[] pidConsts = {kS, kP, kI, kD};
         }
 
         public interface FrontLeft {
@@ -67,6 +74,10 @@ public interface Settings {
             Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromDegrees(85.7812).plus(Rotation2d.fromDegrees(90));
             Translation2d MODULE_OFFSET = new Translation2d(WIDTH * +0.5, HEIGHT * +0.5);
             double kS = 0.125;
+            double kP = 6.335;
+            double kI = 0.0;
+            double kD = 0.05;
+            double[] pidConsts = {kS, kP, kI, kD};
         }
 
         public interface BackLeft {
@@ -75,6 +86,10 @@ public interface Settings {
             Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromDegrees(-96.9433).plus(Rotation2d.fromDegrees(90));
             Translation2d MODULE_OFFSET = new Translation2d(WIDTH * -0.5, HEIGHT * +0.5);
             double kS = 0.125;
+            double kP = 6.335;
+            double kI = 0.0;
+            double kD = 0.05;
+            double[] pidConsts = {kS, kP, kI, kD};
         }
 
         public interface BackRight {
@@ -83,6 +98,10 @@ public interface Settings {
             Rotation2d ABSOLUTE_OFFSET = Rotation2d.fromDegrees(-162.9492).plus(Rotation2d.fromDegrees(90));
             Translation2d MODULE_OFFSET = new Translation2d(WIDTH * -0.5, HEIGHT * -0.5);
             double kS = 0.125;
+            double kP = 6.335;
+            double kI = 0.0;
+            double kD = 0.05;
+            double[] pidConsts = {kS, kP, kI, kD};
         }
 	}
 }

@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.stuypulse.robot.constants.Motors;
+import com.stuypulse.robot.constants.Settings.Swerve;
 import com.stuypulse.robot.constants.Settings.Swerve.Encoder;
 import com.stuypulse.robot.subsystems.SwerveModule;
 import com.stuypulse.stuylib.control.angle.feedback.AnglePIDController;
@@ -22,17 +23,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
 
-    private interface Turn {
-        double kP = 6.335;
-        double kI = 0.0;
-        double kD = 0.05;
-    }
-    SmartNumber turnP = new SmartNumber("turnP", Turn.kP);
-    SmartNumber turnI = new SmartNumber("turnI", Turn.kI);
-    SmartNumber turnD = new SmartNumber("turnD", Turn.kD);
-    SmartNumber turnKS = new SmartNumber("turnKS", 0.12);
-
-    SmartNumber target = new SmartNumber("Target Deg", 0);
+    private SmartNumber turnP;
+    private SmartNumber turnI;
+    private SmartNumber turnD;
+    private SmartNumber turnS;
+    private SmartNumber target;
 
     // module data
     private String id;
@@ -49,22 +44,27 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
 
     // controller
     private AnglePIDController turnPID;
-    private double kS;
+    private double[] pidConsts;
 
     private double voltage;
 
     public VoltageSwerveModule(String id, Translation2d location, int turnCANId, int turnEncoderId,
-            Rotation2d angleOffset, int driveCANId, double kS) {
+            Rotation2d angleOffset, int driveCANId, double[] pidConsts) {
 
         // module data
         this.id = id;
         this.location = location;
         this.angleOffset = angleOffset;
-        this.kS = kS;
+        this.pidConsts = pidConsts;
+
+        turnS = new SmartNumber(id + "/kS", pidConsts[Swerve.kS]);
+        turnP = new SmartNumber(id + "/kP", pidConsts[Swerve.kP]);
+        turnI = new SmartNumber(id + "/kI", pidConsts[Swerve.kI]);
+        turnD = new SmartNumber(id + "/kD", pidConsts[Swerve.kD]);
 
         // turn
         turnMotor = new CANSparkMax(turnCANId, MotorType.kBrushless);
-        turnPID = new AnglePIDController(Turn.kP, Turn.kI, Turn.kD);
+        turnPID = new AnglePIDController(pidConsts[Swerve.kP], pidConsts[Swerve.kI], pidConsts[Swerve.kD]);
         absoluteEncoder = new CANCoder(turnEncoderId);
         configureTurnMotor(angleOffset);
 
@@ -148,9 +148,9 @@ public class VoltageSwerveModule extends SubsystemBase implements SwerveModule {
         turnPID.setP(turnP.get());
         turnPID.setI(turnI.get());
         turnPID.setD(turnD.get());
-        kS = turnKS.get();
+        pidConsts[Swerve.kS] = turnS.get();
         double turnVoltage = turnPID.update(Angle.fromDegrees(target.get()), Angle.fromRotation2d(getRotation2d()));
-        turnVoltage += -1 * kS * Math.signum(Angle.fromRotation2d(getRotation2d()).toDegrees() - Angle.fromDegrees(target.get()).toDegrees());
+        turnVoltage += pidConsts[Swerve.kS] * Math.signum(Angle.fromDegrees(target.get()).toDegrees() - Angle.fromRotation2d(getRotation2d()).toDegrees());
         turnMotor.setVoltage(turnVoltage);
         driveMotor.setVoltage(voltage);
 
