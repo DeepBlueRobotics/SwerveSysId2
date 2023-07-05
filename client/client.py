@@ -12,31 +12,11 @@ if __name__ == '__main__':
     ### command line arguments ###
     # -d : do not download data but instead look for already-downloaded files
     # -x : delete downloaded files after they have been read
-    # -m=[id] : only collect data from a specific module
-    #  [id] can be -1 or 1 or l or r or left or right
     iargs = sys.argv[1:]
     args = {
       "-d": ("-d" in iargs),
       "-x": ("-x" in iargs),
-      "-m": ("-x" in iargs),
-      "-m=": None
     }
-    
-    if args["-m"]:
-      i=0
-      while "-m" not in iargs[i]:
-        i+=1
-      #dump the arg value into memory
-      val = iargs[i][3:]
-      if val in ["1","r","right"]:
-        print("[-m]: Only collecting RIGHT side swerve data!")
-        args["-m="]=1
-      elif val in 
-        print("[-m]: Only collecting LEFT side swerve data!")
-        args["-m="]=-1
-      else:
-        print("[-m]: Invalid argument passed to -m!")
-        exit()
 
     data = c.data#constants dictionary
     
@@ -69,12 +49,18 @@ if __name__ == '__main__':
 #    filename=choices[n][1]
     
     ### Reading Files ###
-    json_data = {}
-    tests = data["tests"]
+    cwd = os.getcwd()#where this script runs from
     
-    for test in tests:
-        filename=test+".json"
-        cwd = os.getcwd()#where this script runs from
+    for i in range(0,4):#for each of the 4 modules
+      json_data = {}
+      tests = data["tests"]
+
+      for test in tests:
+        separateData=[]
+        testData=[]
+
+        #download all the data
+        filename=test+"-"+i+".json"
         if not args["-d"]:
         ### Grab file ###
           print(f"Downloading file: {filename}")
@@ -91,52 +77,37 @@ if __name__ == '__main__':
           print("[{filename}] not found\n Skipping.")
           continue
 
-        #put it in the output json file
-        formatted = "{ \"numbers\": ["+text+"]}"
-        #print(formatted[:500])
-        
+        #put each module's data in storage
+        formatted = "{ \"numbers\": ["+text+"]}"#pretend it's real json so we can load it
         raw = json.loads(formatted)["numbers"]
+        
         #Logger Json Value format:
           #0 Timer.getFPGATimestamp
           #1 voltage
           #2 position
           #3 velocity
-        swaps=[]#which slots to override with the opposite side's data?
-        if args["-m="] = 1:#right
-          swaps=[
-            (0,1),#make the left motor pretend to have the right's VOLTAGE
-            (3,4),#make the left motor pretend to have the right's POSITION
-            (5,6),#make the left motor pretend to have the right's VELOCITY
-          ]
-        elif args["-m="] = -1:#left
-          swaps=[
-            (1,0),#make the RIGHT motor pretend to have the LEFT's voltage
-            (4,3),#make the RIGHT motor pretend to have the LEFT's pos
-            (6,5),#make the RIGHT motor pretend to have the LEFT's vel
-          ]
-        
-        #apply swaps
-        if swaps!=[]:
-          for stamp in raw["numbers"]:
-            for pair in swaps:
-              stamp[pair[0]] = stamp[pair[1]]
-        #print(raw[:500])
-        
-        json_data[test]=raw
+          #print(raw[:500])
+
+        json_data[test]=testData
 
         
         if args["-x"]:
           os.remove(os.path.join(cwd, filename))
           print(f"[-x]: Removed {filename}!")
+        
+        #end settings
+        json_data["sysid"]="true"
+        json_data["test"]="Simple"
+        json_data["units"]="Rotations"
+        json_data["unitsPerRotation"]=1
+        #write file
+        moduleStr = ["FR","FL","BL","BR"]
+        outName = data['outputFile']+moduleStr
+        with open(outName, 'w') as f:
+            json.dump(json_data, f, indent=4)
     
+    
+    
+    #close ftp after all files downloaded
     if not args["-d"]:
-      ftp.quit()#close ftp after files downloaded
-    
-    #end settings
-    json_data["sysid"]="true"
-    json_data["test"]="Simple"
-    json_data["units"]="Rotations"
-    json_data["unitsPerRotation"]=1
-    
-    with open(data['outputFile'], 'w') as f:
-        json.dump(json_data, f, indent=4)
+      ftp.quit()
