@@ -21,52 +21,57 @@ public class Logger extends SubsystemBase {
 	// 200 samples/s * 20 seconds * 9 doubles per sample
 	private static final int LEN_VALUES = 36000;
 
-	private final List<Double[]> values;
+	private final List<List<Double[]>> values;
 	private final VoltageSwerve swerve;
 
 	public Logger(VoltageSwerve swerve) {
-		values = new ArrayList<>(LEN_VALUES);
+		values = new ArrayList<>(swerve.getNumModules());
+		for (int i = 0; i < swerve.getNumModules(); i++) {
+			values.set(i, new ArrayList<>(LEN_VALUES));
+		}
 		this.swerve = swerve;
 	}
 
 	public void clear() {
-		values.clear();
+		for (int i = 0; i < swerve.getNumModules(); i++) {
+			values.get(i).clear();
+		}
 	}
 
 	public void publish(String test, boolean forwards) {
-		String path = test + (forwards ? "-forward" : "-backward");
-		String data = values.stream().map(datapoint -> "[" + Arrays.stream(datapoint).map(Object::toString).collect(Collectors.joining(",")) + "]").collect(Collectors.joining(",\n"));
-		values.clear();
-		Path outFile = Path.of(System.getProperty("user.home"), "sysid-tests", path + ".json");
-		try {
-			Files.createDirectories(outFile.getParent());
-			Files.deleteIfExists(outFile);
-			Files.createFile(outFile);
-			try(FileWriter writer = new FileWriter(outFile.toFile())) {
-				writer.write(data);
-				writer.flush();
+		for (int i = 0; i < swerve.getNumModules(); i++) {
+			String path = test + (forwards ? "-forward" : "-backward") + "-" + i;
+			String data = values.get(i).stream().map(datapoint -> "[" + Arrays.stream(datapoint).map(Object::toString).collect(Collectors.joining(",")) + "]").collect(Collectors.joining(",\n"));
+			values.clear();
+			Path outFile = Path.of(System.getProperty("user.home"), "sysid-tests", path + ".json");
+			try {
+				Files.createDirectories(outFile.getParent());
+				Files.deleteIfExists(outFile);
+				Files.createFile(outFile);
+				try(FileWriter writer = new FileWriter(outFile.toFile())) {
+					writer.write(data);
+					writer.flush();
+				}
+			} catch(IOException e) {
+				StringWriter writer = new StringWriter();
+				PrintWriter pw = new PrintWriter(writer);
+				e.printStackTrace(pw);
+				String str = writer.toString();
+				System.err.println(str);
+				pw.close();
 			}
-		} catch(IOException e) {
-			StringWriter writer = new StringWriter();
-			PrintWriter pw = new PrintWriter(writer);
-			e.printStackTrace(pw);
-			String str = writer.toString();
-			System.err.println(str);
-			pw.close();
 		}
 		// SmartDashboard.putString(path, data);
 	}
 
 	@Override
 	public void periodic() {
-		values.add(new Double[] {Timer.getFPGATimestamp(),
-		swerve.getLeftVoltage(),
-		swerve.getRightVoltage(),
-		swerve.getLeftPosition(),
-		swerve.getRightPosition(),
-		swerve.getLeftVelocity(),
-		swerve.getRightVelocity(),
-		swerve.getRotation2d().getDegrees() / 360.0,
-		swerve.getAngularVelocity() / Math.PI / 2.0});
+		for (int i = 0; i < swerve.getNumModules(); i++) {
+			values.get(i).add(new Double[] {Timer.getFPGATimestamp(),
+			swerve.getVoltage(),
+			swerve.getPosition(i),
+			swerve.getVelocity(i),
+			});
+		}
 	}
 }

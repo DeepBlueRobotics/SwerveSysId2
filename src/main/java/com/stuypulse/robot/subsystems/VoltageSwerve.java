@@ -38,24 +38,32 @@ public class VoltageSwerve extends SubsystemBase {
 	private final AngleVelocity angleFilter;
 	private double angularVelocity;
 
-	private double leftVoltage, rightVoltage;
+	private double voltage;
 
 	private Field2d field;
 
 	public VoltageSwerve() {
 		if (Robot.isReal()) {
 			modules = new SwerveModule[] {
-				new VoltageSwerveModule(FrontRight.ID, FrontRight.MODULE_OFFSET, Ports.Swerve.FrontRight.TURN, Ports.Swerve.FrontRight.TURN_ENCODER, FrontRight.ABSOLUTE_OFFSET, Ports.Swerve.FrontRight.DRIVE, FrontRight.pidConsts),
-				new VoltageSwerveModule(FrontLeft.ID, FrontLeft.MODULE_OFFSET, Ports.Swerve.FrontLeft.TURN, Ports.Swerve.FrontLeft.TURN_ENCODER, FrontLeft.ABSOLUTE_OFFSET, Ports.Swerve.FrontLeft.DRIVE, FrontLeft.pidConsts),
-				new VoltageSwerveModule(BackLeft.ID, BackLeft.MODULE_OFFSET, Ports.Swerve.BackLeft.TURN, Ports.Swerve.BackLeft.TURN_ENCODER, BackLeft.ABSOLUTE_OFFSET, Ports.Swerve.BackLeft.DRIVE, BackLeft.pidConsts),
-				new VoltageSwerveModule(BackRight.ID, BackRight.MODULE_OFFSET, Ports.Swerve.BackRight.TURN, Ports.Swerve.BackRight.TURN_ENCODER, BackRight.ABSOLUTE_OFFSET, Ports.Swerve.BackRight.DRIVE, BackRight.pidConsts)
+					new VoltageSwerveModule(FrontRight.ID, FrontRight.MODULE_OFFSET, Ports.Swerve.FrontRight.TURN,
+							Ports.Swerve.FrontRight.TURN_ENCODER, FrontRight.ABSOLUTE_OFFSET,
+							Ports.Swerve.FrontRight.DRIVE, FrontRight.pidConsts),
+					new VoltageSwerveModule(FrontLeft.ID, FrontLeft.MODULE_OFFSET, Ports.Swerve.FrontLeft.TURN,
+							Ports.Swerve.FrontLeft.TURN_ENCODER, FrontLeft.ABSOLUTE_OFFSET,
+							Ports.Swerve.FrontLeft.DRIVE, FrontLeft.pidConsts),
+					new VoltageSwerveModule(BackLeft.ID, BackLeft.MODULE_OFFSET, Ports.Swerve.BackLeft.TURN,
+							Ports.Swerve.BackLeft.TURN_ENCODER, BackLeft.ABSOLUTE_OFFSET, Ports.Swerve.BackLeft.DRIVE,
+							BackLeft.pidConsts),
+					new VoltageSwerveModule(BackRight.ID, BackRight.MODULE_OFFSET, Ports.Swerve.BackRight.TURN,
+							Ports.Swerve.BackRight.TURN_ENCODER, BackRight.ABSOLUTE_OFFSET,
+							Ports.Swerve.BackRight.DRIVE, BackRight.pidConsts)
 			};
 		} else {
 			modules = new SwerveModule[] {
-				new SimVoltageSwerveModule(FrontRight.ID, FrontRight.MODULE_OFFSET),
-				new SimVoltageSwerveModule(FrontLeft.ID, FrontLeft.MODULE_OFFSET),
-				new SimVoltageSwerveModule(BackLeft.ID, BackLeft.MODULE_OFFSET),
-				new SimVoltageSwerveModule(BackRight.ID, BackRight.MODULE_OFFSET)
+					new SimVoltageSwerveModule(FrontRight.ID, FrontRight.MODULE_OFFSET),
+					new SimVoltageSwerveModule(FrontLeft.ID, FrontLeft.MODULE_OFFSET),
+					new SimVoltageSwerveModule(BackLeft.ID, BackLeft.MODULE_OFFSET),
+					new SimVoltageSwerveModule(BackRight.ID, BackRight.MODULE_OFFSET)
 			};
 		}
 
@@ -82,38 +90,25 @@ public class VoltageSwerve extends SubsystemBase {
 		return Arrays.stream(modules).map(x -> x.getPosition()).toArray(SwerveModulePosition[]::new);
 	}
 
-	public void setLeftVoltage(double voltage) {
-		leftVoltage = voltage;
+	public int getNumModules() {
+		return modules.length;
 	}
 
-	public double getLeftVoltage() {
-		return leftVoltage;
+	public void setVoltage(double voltage) {
+		this.voltage = voltage;
 	}
 
-	// NOTE: might be incorrect if encoders don't both start at zero
-	public double getLeftPosition() {
-		return (modules[1].getDistance() + modules[2].getDistance()) / 2.0;
-	}
-
-	public double getLeftVelocity() {
-		return (modules[1].getVelocity() + modules[2].getVelocity()) / 2.0;
-	}
-
-	public void setRightVoltage(double voltage) {
-		rightVoltage = voltage;
-	}
-
-	public double getRightVoltage() {
-		return rightVoltage;
+	public double getVoltage() {
+		return voltage;
 	}
 
 	// NOTE: might be incorrect if encoders don't both start at zero
-	public double getRightPosition() {
-		return (modules[0].getDistance() + modules[3].getDistance()) / 2.0;
+	public double getPosition(int module) {
+		return modules[module].getDistance();
 	}
 
-	public double getRightVelocity() {
-		return (modules[0].getVelocity() + modules[3].getVelocity()) / 2.0;
+	public double getVelocity(int module) {
+		return modules[module].getVelocity();
 	}
 
 	// return ccw+ angle
@@ -128,31 +123,34 @@ public class VoltageSwerve extends SubsystemBase {
 			return angularVelocity;
 	}
 
-
 	@Override
 	public void periodic() {
 		odometry.update(getRotation2d(), getModulePositions());
 
-		modules[0].setVoltage(rightVoltage);
-		modules[1].setVoltage(leftVoltage);
-		modules[2].setVoltage(leftVoltage);
-		modules[3].setVoltage(rightVoltage);
+		modules[0].setVoltage(voltage);
+		modules[1].setVoltage(voltage);
+		modules[2].setVoltage(voltage);
+		modules[3].setVoltage(voltage);
 
 		field.setRobotPose(odometry.getPoseMeters());
 
-		SmartDashboard.putNumber("Swerve/Left Voltage", leftVoltage);
-		SmartDashboard.putNumber("Swerve/Right Voltage", leftVoltage);
-		SmartDashboard.putNumber("Swerve/Left Pos (rotations)", getLeftPosition());
-		SmartDashboard.putNumber("Swerve/Left Vel (rotations per s)", getLeftVelocity());
-		SmartDashboard.putNumber("Swerve/Right Pos (rotations)", getRightPosition());
-		SmartDashboard.putNumber("Swerve/Right Vel (rotations per s)", getRightVelocity());
+		/*
+		 * SmartDashboard.putNumber("Swerve/Left Voltage", leftVoltage);
+		 * SmartDashboard.putNumber("Swerve/Right Voltage", leftVoltage);
+		 * SmartDashboard.putNumber("Swerve/Left Pos (rotations)", getLeftPosition());
+		 * SmartDashboard.putNumber("Swerve/Left Vel (rotations per s)",
+		 * getLeftVelocity());
+		 * SmartDashboard.putNumber("Swerve/Right Pos (rotations)", getRightPosition());
+		 * SmartDashboard.putNumber("Swerve/Right Vel (rotations per s)",
+		 * getRightVelocity());
+		 */
 	}
 
 	@Override
 	public void simulationPeriodic() {
 		var speeds = kinematics.toChassisSpeeds(getModuleStates());
 
-        gyro.setAngleAdjustment(gyro.getAngle() - Math.toDegrees(speeds.omegaRadiansPerSecond * Settings.dT));
+		gyro.setAngleAdjustment(gyro.getAngle() - Math.toDegrees(speeds.omegaRadiansPerSecond * Settings.dT));
 
 		angularVelocity = angleFilter.get(Angle.fromRotation2d(getRotation2d()));
 	}

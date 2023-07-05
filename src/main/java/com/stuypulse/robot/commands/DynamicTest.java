@@ -38,8 +38,7 @@ public class DynamicTest extends CommandBase {
 
 	@Override
 	public void execute() {
-		robot.swerve.setLeftVoltage(getVolts());
-		robot.swerve.setRightVoltage(getVolts());
+		robot.swerve.setVoltage(getVolts());
 	}
 
 	@Override
@@ -49,8 +48,7 @@ public class DynamicTest extends CommandBase {
 
 	@Override
 	public void end(boolean interrupted) {
-		robot.swerve.setLeftVoltage(0.0);
-		robot.swerve.setRightVoltage(0.0);
+		robot.swerve.setVoltage(0.0);
 
 		robot.logger.publish("fast", forward);
 	}
