@@ -27,7 +27,7 @@ public class Logger extends SubsystemBase {
 	public Logger(VoltageSwerve swerve) {
 		values = new ArrayList<>(swerve.getNumModules());
 		for (int i = 0; i < swerve.getNumModules(); i++) {
-			values.set(i, new ArrayList<>(LEN_VALUES));
+			values.add(new ArrayList<>(LEN_VALUES));
 		}
 		this.swerve = swerve;
 	}
@@ -38,11 +38,15 @@ public class Logger extends SubsystemBase {
 		}
 	}
 
+	public void clear(int module) {
+		values.get(module).clear();
+	}
+
 	public void publish(String test, boolean forwards) {
 		for (int i = 0; i < swerve.getNumModules(); i++) {
 			String path = test + (forwards ? "-forward" : "-backward") + "-" + i;
 			String data = values.get(i).stream().map(datapoint -> "[" + Arrays.stream(datapoint).map(Object::toString).collect(Collectors.joining(",")) + "]").collect(Collectors.joining(",\n"));
-			values.clear();
+			clear(i);
 			Path outFile = Path.of(System.getProperty("user.home"), "sysid-tests", path + ".json");
 			try {
 				Files.createDirectories(outFile.getParent());
