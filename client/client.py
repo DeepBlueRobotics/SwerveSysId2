@@ -98,14 +98,9 @@ if __name__ == '__main__':
         raw = json.loads(formatted)["numbers"]
         #Logger Json Value format:
           #0 Timer.getFPGATimestamp
-          #1 getLeftVoltage
-          #2 getRightVoltage
-          #3 getLeftPosition
-          #4 getRightPosition
-          #5 getLeftVelocity
-          #6 getRightVelocity
-          #7 getRotation2d().getDegrees() / 360.0
-          #8 getAngularVelocity() / Math.PI / 2.0
+          #1 voltage
+          #2 position
+          #3 velocity
         swaps=[]#which slots to override with the opposite side's data?
         if args["-m="] = 1:#right
           swaps=[
@@ -139,9 +134,9 @@ if __name__ == '__main__':
     
     #end settings
     json_data["sysid"]="true"
-    json_data["test"]="Drivetrain"
-    json_data["units"]="Meters"
-    json_data["unitsPerRotation"]=data["wheelDiameter"]*pi
+    json_data["test"]="Simple"
+    json_data["units"]="Rotations"
+    json_data["unitsPerRotation"]=1
     
     with open(data['outputFile'], 'w') as f:
         json.dump(json_data, f, indent=4)
