@@ -102,9 +102,10 @@ if __name__ == '__main__':
         json_data["unitsPerRotation"]=1
         #write file
         moduleStr = ["FR","FL","BL","BR"]
-        outName = data['outputFile']+moduleStr
+        outName = "data-"+moduleStr+".json"
         with open(outName, 'w') as f:
             json.dump(json_data, f, indent=4)
+            print(f"Wrote to {outName}!")
     
     
     
