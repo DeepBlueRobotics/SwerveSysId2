@@ -12,31 +12,11 @@ if __name__ == '__main__':
     ### command line arguments ###
     # -d : do not download data but instead look for already-downloaded files
     # -x : delete downloaded files after they have been read
-    # -m=[id] : only collect data from a specific module
-    #  [id] can be -1 or 1 or l or r or left or right
-    iargs = sys.argv[1:]
+    args = sys.argv[1:]
     args = {
-      "-d": ("-d" in iargs),
-      "-x": ("-x" in iargs),
-      "-m": ("-x" in iargs),
-      "-m=": None
+      "-d": ("-d" in args),
+      "-x": ("-x" in args),
     }
-    
-    if args["-m"]:
-      i=0
-      while "-m" not in iargs[i]:
-        i+=1
-      #dump the arg value into memory
-      val = iargs[i][3:]
-      if val in ["1","r","right"]:
-        print("[-m]: Only collecting RIGHT side swerve data!")
-        args["-m="]=1
-      elif val in 
-        print("[-m]: Only collecting LEFT side swerve data!")
-        args["-m="]=-1
-      else:
-        print("[-m]: Invalid argument passed to -m!")
-        exit()
 
     data = c.data#constants dictionary
     
@@ -94,45 +74,11 @@ if __name__ == '__main__':
         #put it in the output json file
         formatted = "{ \"numbers\": ["+text+"]}"
         #print(formatted[:500])
-        
-        raw = json.loads(formatted)["numbers"]
-        #Logger Json Value format:
-          #0 Timer.getFPGATimestamp
-          #1 getLeftVoltage
-          #2 getRightVoltage
-          #3 getLeftPosition
-          #4 getRightPosition
-          #5 getLeftVelocity
-          #6 getRightVelocity
-          #7 getRotation2d().getDegrees() / 360.0
-          #8 getAngularVelocity() / Math.PI / 2.0
-        swaps=[]#which slots to override with the opposite side's data?
-        if args["-m="] = 1:#right
-          swaps=[
-            (0,1),#make the left motor pretend to have the right's VOLTAGE
-            (3,4),#make the left motor pretend to have the right's POSITION
-            (5,6),#make the left motor pretend to have the right's VELOCITY
-          ]
-        elif args["-m="] = -1:#left
-          swaps=[
-            (1,0),#make the RIGHT motor pretend to have the LEFT's voltage
-            (4,3),#make the RIGHT motor pretend to have the LEFT's pos
-            (6,5),#make the RIGHT motor pretend to have the LEFT's vel
-          ]
-        
-        #apply swaps
-        if swaps!=[]:
-          for stamp in raw["numbers"]:
-            for pair in swaps:
-              stamp[pair[0]] = stamp[pair[1]]
-        #print(raw[:500])
-        
-        json_data[test]=raw
+        json_data[test]=json.loads(formatted)["numbers"]
 
-        
         if args["-x"]:
           os.remove(os.path.join(cwd, filename))
-          print(f"[-x]: Removed {filename}!")
+          print(f"Removed {filename}!")
     
     if not args["-d"]:
       ftp.quit()#close ftp after files downloaded
